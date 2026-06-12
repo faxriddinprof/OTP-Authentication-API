@@ -37,7 +37,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     # local_apps
-    'src.apps.Users',
+    'src.apps.users',
+    'src.apps.books',
 
     # outside_apps
     "rest_framework",

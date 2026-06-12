@@ -20,7 +20,6 @@ class RegisterAPIView(APIView):
 
         redis_client.set(f"otp:{email}", otp, ex=120)
 
-        # 🔥 REAL EMAIL SEND
         send_otp_email(email, otp)
 
         return Response({
@@ -45,14 +44,11 @@ class VerifyOTPAPIView(APIView):
         if saved_otp != otp:
             return Response({"error": "Invalid OTP"}, status=400)
 
-        # 🔥 OTP ishlatildi → delete
         redis_client.delete(f"otp:{email}")
 
-        # 🔥 user already exists check
         if User.objects.filter(email=email).exists():
             return Response({"error": "User already exists"}, status=400)
 
-        # 🔥 password generate
         raw_password = str(random.randint(100000, 999999))
 
         user = User.objects.create(
