@@ -6,7 +6,7 @@ urlpatterns = [
     
     path(
         "api/",
-        include("src.apps.users.urls")
+        include("src.apps.users.api.urls")
     ),
 
 
