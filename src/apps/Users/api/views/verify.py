@@ -26,19 +26,18 @@ class VerifyOTPAPIView(APIView):
         redis_client.delete(f"otp:{email}")
 
         if User.objects.filter(email=email).exists():
-            return Response({"error": "User already exists"}, status=400)
+            return Response({"message": "OTP verified, user registration confirmed"})
 
         raw_password = str(random.randint(100000, 999999))
 
         user = User.objects.create(
             name=email.split("@")[0],
             email=email,
-            password=make_password(raw_password),
-            tg_id="auto"
+            password=make_password(raw_password)
         )
 
         return Response({
             "message": "OTP verified, user created",
             "email": email,
             "password": raw_password
-        })  
+        })
