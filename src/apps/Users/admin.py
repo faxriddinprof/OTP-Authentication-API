@@ -10,10 +10,10 @@ class UserAdmin(admin.ModelAdmin):
     readonly_fields = ("id",)
     
     fieldsets = (
-        ("Shaxsiy Ma'lumotlar", {
+        ("Personal Information", {
             "fields": ("id", "name", "email")
         }),
-        ("Xavfsizlik", {
+        ("Security", {
             "fields": ("password",),
             "classes": ("collapse",)
         }),
@@ -24,6 +24,6 @@ class UserAdmin(admin.ModelAdmin):
     )
     
     def get_readonly_fields(self, request, obj=None):
-        if obj:  # Tahrirlash shaklida
-            return self.readonly_fields + ("email",)  
+        if obj:  # When editing existing user
+            return self.readonly_fields + ("email",)  # Prevent email change
         return self.readonly_fields
