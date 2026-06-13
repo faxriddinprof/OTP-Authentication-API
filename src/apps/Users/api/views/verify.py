@@ -1,4 +1,4 @@
-import random
+import json
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.contrib.auth.hashers import make_password
@@ -15,29 +15,24 @@ class VerifyOTPAPIView(APIView):
         if not email or not otp:
             return Response({"error": "email and otp required"}, status=400)
 
+        user_data = redis_client.get(f"user_data:{email}")
+        if not user_data:
+            return Response({"error": "User data not found"}, status=400)
+        
         saved_otp = redis_client.get(f"otp:{email}")
-
-        if not saved_otp:
-            return Response({"error": "OTP expired or not found"}, status=400)
-
-        if saved_otp != otp:
+        if saved_otp != str(otp):
             return Response({"error": "Invalid OTP"}, status=400)
-
-        redis_client.delete(f"otp:{email}")
-
-        if User.objects.filter(email=email).exists():
-            return Response({"message": "OTP verified, user registration confirmed"})
-
-        raw_password = str(random.randint(100000, 999999))
+        
+        user_data = json.loads(user_data)
 
         user = User.objects.create(
-            name=email.split("@")[0],
-            email=email,
-            password=make_password(raw_password)
+            name=user_data["name"],
+            email=user_data["email"],
+            password=make_password(user_data["password"])
         )
 
+        redis_client.delete(f"user_data:{email}")
+        redis_client.delete(f"otp:{email}")
         return Response({
             "message": "OTP verified, user created",
-            "email": email,
-            "password": raw_password
         })
