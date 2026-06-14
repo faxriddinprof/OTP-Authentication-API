@@ -1,5 +1,4 @@
 import json
-import random
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from src.apps.users.models import User
@@ -25,8 +24,6 @@ class RegisterAPIView(APIView):
 
         otp = create_otp(email)
 
-        redis_client.set(f"otp:{email}", otp, ex=120)
-        
         redis_client.set(
             f"user_data:{email}",
             json.dumps({
@@ -41,5 +38,5 @@ class RegisterAPIView(APIView):
 
 
         return Response({
-            "message": "OTP sent to email and user created",
+            "message": "OTP sent. Please verify your email",
         }, status=201)
