@@ -5,7 +5,7 @@ from rest_framework.response import Response
 from src.apps.users.models import User
 from src.apps.users.redis_client import redis_client
 from src.apps.users.tasks import send_otp_task
-
+from src.apps.users.utils.otp import create_otp
 
 class RegisterAPIView(APIView):
 
@@ -23,7 +23,7 @@ class RegisterAPIView(APIView):
         if len(password) < 5:
             return Response({"error": "Password must be at least 5 characters long"}, status=400)
 
-        otp = str(random.randint(1000, 9999))
+        otp = create_otp(email)
 
         redis_client.set(f"otp:{email}", otp, ex=120)
         
@@ -34,7 +34,7 @@ class RegisterAPIView(APIView):
                 "email": email,
                 "password": password,
             }),
-            ex=120
+            ex=600
             )
         
         send_otp_task.delay(email, otp)
