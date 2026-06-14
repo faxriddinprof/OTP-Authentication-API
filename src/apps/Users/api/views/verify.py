@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from django.contrib.auth.hashers import make_password
 from src.apps.users.redis_client import redis_client
 from src.apps.users.models import User
-from src.apps.users.utils.otp import get_otp, delete_otp
+from src.apps.users.utils.otp import get_otp
 
 
 class VerifyOTPAPIView(APIView):
