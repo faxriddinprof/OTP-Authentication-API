@@ -1,10 +1,10 @@
-import random
+import secrets
 
 from src.apps.users.redis_client import redis_client
 
 
 def create_otp(email):
-    otp = str(random.randint(1000, 9999))
+    otp = str(secrets.randbelow(900000) + 100000)  
 
     redis_client.set(
         f"otp:{email}",
@@ -54,3 +54,20 @@ def has_resend_lock(email):
     return redis_client.exists(
         f"resend_lock:{email}"
     )
+
+
+def increment_otp_attempts(email):
+    key = f"otp_attempts:{email}"
+    count = redis_client.incr(key)
+    if count == 1:
+        redis_client.expire(key, 120)  
+    return count
+
+
+def get_otp_attempts(email):
+    count = redis_client.get(f"otp_attempts:{email}")
+    return int(count) if count else 0
+
+
+def delete_otp_attempts(email):
+    redis_client.delete(f"otp_attempts:{email}")
